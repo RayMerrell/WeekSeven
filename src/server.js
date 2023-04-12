@@ -1,11 +1,47 @@
 const express=require("express");
 const app = express();
 
-//app.use("/books", express.static("books"));
-//app.use("/", express.static("anotherRoute"));
+require("dotenv").config();
+require("./db/connection");
+//require ("./modbooks");
+
+const Book = require("./modbooks/model");
+
+app.use("/books", express.static("books"));
+app.use("/", express.static("anotherRoute"));
 //app.use("/MyRoute", express.static("myRoute"));
 
+app.listen(5001, ()=>console.log("Server is listening"));
 app.use(express.json());
+app.post("/books/addbook", async (request, response)=>{
+    console.log(request.body);
+    const newBook= await Book.create({
+        title:request.body.title,
+        author: request.body.author,
+        genre:request.body.genre
+    }); 
+    const successResponse ={
+        message:"Success",
+        newBook:newBook
+    }
+    response.status(201).json(successResponse);
+});
+
+// SuccessResponse:
+//     type: object  
+//     status: 201  
+//     properties:
+//         message:
+//             type: string
+//             example: 'success'
+//         newBook:
+//             type: object
+//             properties:
+//                 title: string
+//                 author: string  
+//                 genre: string
+//                 _id: string
+
 
 app.get("/books", (request, response)=>{
     const book ={
@@ -19,21 +55,6 @@ app.get("/books", (request, response)=>{
     }
     response.send(successResponse);
 })
-
-app.post("/books" , (request, response)=>{
-    console.log(request.body);
-    const newBook= {
-        id:"1234",
-        title:request.body.title,
-        author: request.body.author,
-        genre:request.body.genre
-    }   
-    const successResponse ={
-        message:"This worked",
-        book:newBook
-    }
-    response.send(successResponse);
-});
 
 app.get("/AnotherRoute", (request, response)=>{
     response.send("This is your other route");
@@ -58,6 +79,4 @@ app.delete("/book", (request, response)=>{
     }
     response.send(successResponse);
 })
-
-app.listen(5001, ()=>console.log("Server is listening"));
 
